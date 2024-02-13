@@ -51,16 +51,26 @@
             <th>작성자</th>
             <th>내용</th>
             <th>작성시간</th>
+            <th>Actions</th> <!-- Add a header for reply actions -->
         </tr>
-        <tr th:each="comment: ${commentList}">
+        <tr th:each="comment, iterStat : ${commentList}">
             <td th:text="${comment.id}"></td>
             <td th:text="${comment.commentWriter}"></td>
             <td th:text="${comment.commentContents}"></td>
             <td th:text="${comment.commentCreatedTime}"></td>
+            <td>
+                <button onclick="setupReplyForm(${comment.id})">Reply</button>
+            </td>
         </tr>
     </table>
 </div>
-
+<!-- Hidden Form for Replies -->
+<div id="reply-form" style="display:none;">
+    <input type="hidden" id="parentId" value="">
+    <input type="text" id="replyWriter" placeholder="작성자">
+    <input type="text" id="replyContents" placeholder="내용">
+    <button onclick="submitReply()">댓글 답변</button>
+</div>
 </body>
 <script th:inline="javascript">
     const commentWrite = () => {
@@ -116,6 +126,18 @@
         console.log("삭제 요청");
         const id = [[${board.id}]];
         location.href = "/board/delete/" + id;
+    }
+    const setupReplyForm = (parentId) => {
+        // Show the reply form and set the parentId
+        document.getElementById('parentId').value = parentId;
+        document.getElementById('reply-form').style.display = 'block';
+    }
+
+    const submitReply = () => {
+        const writer = document.getElementById("replyWriter").value;
+        const contents = document.getElementById("replyContents").value;
+        const parentId = document.getElementById("parentId").value;
+        const boardId = [[${board.id}]];
     }
 </script>
 </html>

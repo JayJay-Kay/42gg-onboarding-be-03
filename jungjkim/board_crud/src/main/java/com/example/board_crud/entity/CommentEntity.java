@@ -5,11 +5,14 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
 @Table(name = "comment_table")
-public class CommentEntity extends BaseEntity{
+public class CommentEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,17 +23,26 @@ public class CommentEntity extends BaseEntity{
     @Column
     private String commentContents;
 
-    // Board:Comment = 1:n
-    // board와 comment의 관계는 1:n의 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
     private BoardEntity boardEntity;
 
-    public static CommentEntity toSaveEntity(CommentDTO commentDTO, BoardEntity boardEntity) {
+    // Self-referencing to indicate parent comment
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private CommentEntity parentComment;
+
+    // For fetching replies of a comment
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
+    private List<CommentEntity> replies = new ArrayList<>();
+
+    public static CommentEntity toSaveEntity(CommentDTO commentDTO, BoardEntity boardEntity, CommentEntity parentComment) {
         CommentEntity commentEntity = new CommentEntity();
         commentEntity.setCommentWriter(commentDTO.getCommentWriter());
         commentEntity.setCommentContents(commentDTO.getCommentContents());
         commentEntity.setBoardEntity(boardEntity);
+        commentEntity.setParentComment(parentComment); // Set parent comment if any
         return commentEntity;
     }
 }
+

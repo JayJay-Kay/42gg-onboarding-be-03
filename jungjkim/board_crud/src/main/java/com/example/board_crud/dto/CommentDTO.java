@@ -16,6 +16,7 @@ public class CommentDTO {
     private String commentContents;
     private Long boardId;
     private LocalDateTime commentCreatedTime;
+    private Long parentId; // Field to indicate the parent comment
 
     public static CommentDTO toCommentDTO(CommentEntity commentEntity, Long boardId) {
         CommentDTO commentDTO = new CommentDTO();
@@ -23,8 +24,12 @@ public class CommentDTO {
         commentDTO.setCommentWriter(commentEntity.getCommentWriter());
         commentDTO.setCommentContents(commentEntity.getCommentContents());
         commentDTO.setCommentCreatedTime(commentEntity.getCreatedTime());
-//        commentDTO.setBoardId(commentEntity.getBoardEntity().getId()); // <- 이거 쓸거면 commentservice 메서드에 @Transactional 붙일걸
         commentDTO.setBoardId(boardId);
+        // Set the parentId from the parentComment entity if it exists
+        if (commentEntity.getParentComment() != null) {
+            commentDTO.setParentId(commentEntity.getParentComment().getId());
+        }
         return commentDTO;
     }
 }
+

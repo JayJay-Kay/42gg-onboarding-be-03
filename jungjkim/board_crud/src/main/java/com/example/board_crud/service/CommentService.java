@@ -19,11 +19,14 @@ public class CommentService {
     private final BoardRepository boardRepository;
 
     public Long save(CommentDTO commentDTO) {
-        //부모엔티티(BoardEntity) 조회
         Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(commentDTO.getBoardId());
+        Optional<CommentEntity> parentComment = Optional.empty();
+        if (commentDTO.getParentId() != null) {
+            parentComment = commentRepository.findById(commentDTO.getParentId());
+        }
         if (optionalBoardEntity.isPresent()) {
             BoardEntity boardEntity = optionalBoardEntity.get();
-            CommentEntity commentEntity = CommentEntity.toSaveEntity(commentDTO, boardEntity);
+            CommentEntity commentEntity = CommentEntity.toSaveEntity(commentDTO, boardEntity, parentComment.orElse(null));
             return commentRepository.save(commentEntity).getId();
         } else {
             return null;
